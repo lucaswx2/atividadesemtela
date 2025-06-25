@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Head from 'next/head'
+import { PostHogProvider } from '../components/PostHogProvider'
 
 export const metadata: Metadata = {
   title: 'Seu Filho Sem Tela – 65 Atividades para Crianças Longe das Telas',
@@ -59,7 +60,11 @@ export default function RootLayout({
       <head>
         <meta name="facebook-domain-verification" content="8zjg59dmkivud4pwjmyp062fy38p7r" />
       </head>
-      <body>{children}</body>
+      <body>
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
+      </body>
     </html>
   )
 }

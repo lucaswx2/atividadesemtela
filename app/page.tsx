@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 import { BsWhatsapp } from "react-icons/bs"
 import Image from "next/image"
+import { trackEvent } from "@/lib/trackEvent"
 
 const testimonials = [
   {
@@ -158,6 +159,7 @@ export default function LandingPage() {
   }, [])
 
   const scrollToPricing = () => {
+    trackEvent('cta_scroll_to_pricing_clicked')
     document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })
   }
 
@@ -212,7 +214,10 @@ export default function LandingPage() {
                     <div className="text-center px-4">
 
                       <Button
-                        onClick={() => window.enableAudio()}
+                        onClick={() => {
+                          trackEvent('video_play_clicked')
+                          window.enableAudio()
+                        }}
                         className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
                       >
                         ▶️ Clique para Assistir o Vídeo
@@ -224,7 +229,7 @@ export default function LandingPage() {
             </div>
 
             {/* BOTÃO - sempre depois do vídeo no mobile, ao lado do texto no desktop */}
-            <div className="w-full flex justify-center lg:justify-start lg:items-center lg:order-2">
+            <div className="w-full flex justify-center lg:justify-center lg:items-center lg:order-2">
               <Button
                 onClick={scrollToPricing}
                 className="bg-highlight mt-6 hover:bg-highlight/80 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-full lg:w-auto min-h-[48px] sm:min-h-[56px]"
@@ -350,7 +355,10 @@ export default function LandingPage() {
               </div>
 
               <Button
-                onClick={() => window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')}
+                onClick={() => {
+                  trackEvent('purchase_button_clicked')
+                  window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')
+                }}
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg  hover:animate-none transition-all duration-300 min-h-[48px] sm:min-h-[56px]"
               >
                 COMPRAR AGORA
@@ -416,7 +424,10 @@ export default function LandingPage() {
           </p>
 
           <Button
-            onClick={() => window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')}
+            onClick={() => {
+              trackEvent('final_cta_clicked')
+              window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')
+            }}
             className="bg-white text-highlight hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
           >
             GARANTIR MINHA CÓPIA AGORA
@@ -428,7 +439,10 @@ export default function LandingPage() {
       <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50">
         <Button
           className="bg-[#25D366] hover:bg-[#20BA56] text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-bounce min-w-[48px] min-h-[48px] sm:min-w-[56px] sm:min-h-[56px]"
-          onClick={() => window.open('https://wa.me/556191588938?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20Atividades%20Sem%20tela', '_blank')}
+          onClick={() => {
+            trackEvent('whatsapp_floating_clicked')
+            window.open('https://wa.me/556191588938?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20Atividades%20Sem%20tela', '_blank')
+          }}
         >
           <BsWhatsapp className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
