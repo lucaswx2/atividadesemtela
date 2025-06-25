@@ -180,55 +180,51 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="py-6 sm:py-8 md:py-12 lg:py-20 px-3 sm:px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col gap-6 sm:gap-8 lg:grid lg:grid-cols-2 lg:gap-12 items-center">
-            {/* Video Player - Mobile First */}
+          <div className="flex flex-col gap-6 sm:gap-8 lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center lg:justify-center">
 
-
-            {/* Hero Content - Mobile Optimized */}
-            <div className="w-full text-center lg:text-left lg:order-2">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2 sm:px-0">
+            {/* TEXTO - Coluna 2 no desktop, primeiro no mobile */}
+            <div className="w-full text-center lg:text-left lg:order-2 flex flex-col lg:justify-center lg:items-center">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2 sm:px-0 font-bold">
                 <span className="text-highlight">65 Atividades </span>  que vão tirar seu filho da frente das telas
               </h1>
               <p className="text-base font-boldsm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 px-2 sm:px-0 mt-2">
                 Desenvolva <b className="text-highlight">inteligência, coordenação e criatividade</b> longe das telas
               </p>
+            </div>
 
-              <div className="w-full lg:order-1">
-                <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-xl">
-                  <div style={{ padding: "56.25% 0 0 0", position: "relative" }}>
-                    <iframe
-                      ref={videoRef}
-                      src="https://player.vimeo.com/video/1096048165?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;background=1&amp;muted=1&amp;loop=1&amp;autopause=1&amp;controls=0"
-                      frameBorder="0"
-                      allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                      style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                      title="Atividades sem telas"
-                    />
-                  </div>
-
-                  {/* Audio Prompt Overlay */}
-                  {showAudioPrompt && (
-                    <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
-                      <div className="text-center px-4">
-                        <p className="text-white text-lg sm:text-xl font-semibold mb-4">
-                          🎥 Clique para Assistir o Vídeo
-                        </p>
-                        <Button
-                          onClick={() => window.enableAudio()}
-                          className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
-                        >
-                          ▶️ ASSISTIR AGORA
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+            {/* VÍDEO - Coluna 1 no desktop, segundo no mobile */}
+            <div className="w-full lg:flex lg:flex-col lg:justify-center lg:items-center lg:order-1 order-none">
+              <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-xl w-full max-w-xl mx-auto">
+                <div style={{ padding: "56.25% 0 0 0", position: "relative" }}>
+                  <iframe
+                    ref={videoRef}
+                    src="https://player.vimeo.com/video/1096048165?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;muted=1&amp;loop=1&amp;autopause=1&amp;controls=0"
+                    frameBorder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                    title="Atividades sem telas"
+                  />
                 </div>
+
+                {/* Audio Prompt Overlay */}
+                {showAudioPrompt && (
+                  <div className="absolute inset-0 bg-black/0 flex items-center justify-center z-20">
+                    <div className="text-center px-4">
+
+                      <Button
+                        onClick={() => window.enableAudio()}
+                        className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
+                      >
+                        ▶️ Clique para Assistir o Vídeo
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
+            </div>
 
-
-
-
-
+            {/* BOTÃO - sempre depois do vídeo no mobile, ao lado do texto no desktop */}
+            <div className="w-full flex justify-center lg:justify-start lg:items-center lg:order-2">
               <Button
                 onClick={scrollToPricing}
                 className="bg-highlight mt-6 hover:bg-highlight/80 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-full lg:w-auto min-h-[48px] sm:min-h-[56px]"
@@ -353,7 +349,10 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg  hover:animate-none transition-all duration-300 min-h-[48px] sm:min-h-[56px]">
+              <Button
+                onClick={() => window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg  hover:animate-none transition-all duration-300 min-h-[48px] sm:min-h-[56px]"
+              >
                 COMPRAR AGORA
               </Button>
 
@@ -417,7 +416,7 @@ export default function LandingPage() {
           </p>
 
           <Button
-            onClick={scrollToPricing}
+            onClick={() => window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')}
             className="bg-white text-highlight hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
           >
             GARANTIR MINHA CÓPIA AGORA
@@ -427,7 +426,10 @@ export default function LandingPage() {
 
       {/* WhatsApp Float Button */}
       <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50">
-        <Button className="bg-[#25D366] hover:bg-[#20BA56] text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-bounce min-w-[48px] min-h-[48px] sm:min-w-[56px] sm:min-h-[56px]">
+        <Button
+          className="bg-[#25D366] hover:bg-[#20BA56] text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-bounce min-w-[48px] min-h-[48px] sm:min-w-[56px] sm:min-h-[56px]"
+          onClick={() => window.open('https://wa.me/556191588938?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20Atividades%20Sem%20tela', '_blank')}
+        >
           <BsWhatsapp className="h-5 w-5 sm:h-6 sm:w-6" />
         </Button>
       </div>
