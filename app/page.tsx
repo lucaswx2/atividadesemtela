@@ -26,6 +26,8 @@ import {
 import { BsWhatsapp } from "react-icons/bs"
 import Image from "next/image"
 import { trackEvent } from "@/lib/trackEvent"
+import { facebookPixelEvents, useScrollTracking } from "@/lib/facebookPixel"
+import { trackTimeOnPage, setupConversionTracking } from "@/lib/conversionTracking"
 
 const testimonials = [
   {
@@ -131,6 +133,15 @@ export default function LandingPage() {
   const videoRef = useRef(null)
 
   useEffect(() => {
+    // Inicializar tracking de scroll do Facebook Pixel
+    const cleanup = useScrollTracking();
+
+    // Inicializar tracking de tempo na página
+    const timeTrackingCleanup = trackTimeOnPage();
+
+    // Configurar tracking de conversão
+    setupConversionTracking();
+
     const script = document.createElement("script")
     script.src = "https://player.vimeo.com/api/player.js"
     script.async = true
@@ -150,16 +161,21 @@ export default function LandingPage() {
         player.setVolume(1)
         player.play()
         setShowAudioPrompt(false)
+        // Rastrear visualização do vídeo no Facebook Pixel
+        facebookPixelEvents.videoView()
       }
     }
 
     return () => {
       document.body.removeChild(script)
+      if (cleanup) cleanup()
+      if (timeTrackingCleanup) timeTrackingCleanup()
     }
   }, [])
 
   const scrollToPricing = () => {
     trackEvent('cta_scroll_to_pricing_clicked')
+    facebookPixelEvents.ctaClick('scroll_to_pricing')
     document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })
   }
 
@@ -216,6 +232,7 @@ export default function LandingPage() {
                       <Button
                         onClick={() => {
                           trackEvent('video_play_clicked')
+                          facebookPixelEvents.videoView()
                           window.enableAudio()
                         }}
                         className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
@@ -242,7 +259,7 @@ export default function LandingPage() {
       </section>
 
       {/* Problem Amplification */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gray-50">
+      <section className="py-8 sm:py-12 md:py-16 bg-gray-50 problems-section">
         <div className="max-w-6xl mx-auto px-3 sm:px-4">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
@@ -275,7 +292,7 @@ export default function LandingPage() {
       </section>
 
       {/* Solution Presentation */}
-      <section className="py-6 sm:py-12 md:py-16">
+      <section className="py-6 sm:py-12 md:py-16 benefits-section">
         <div className="max-w-6xl mx-auto px-3 sm:px-4">
           <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
             {/* Product Showcase */}
@@ -357,6 +374,7 @@ export default function LandingPage() {
               <Button
                 onClick={() => {
                   trackEvent('purchase_button_clicked')
+                  facebookPixelEvents.initiateCheckout()
                   window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')
                 }}
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg  hover:animate-none transition-all duration-300 min-h-[48px] sm:min-h-[56px]"
@@ -373,7 +391,7 @@ export default function LandingPage() {
       </section>
 
       {/* Social Proof */}
-      <section className="py-8 sm:py-12 md:py-16">
+      <section className="py-8 sm:py-12 md:py-16 testimonials-section">
         <div className="max-w-6xl mx-auto px-3 sm:px-4">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
@@ -426,6 +444,7 @@ export default function LandingPage() {
           <Button
             onClick={() => {
               trackEvent('final_cta_clicked')
+              facebookPixelEvents.ctaClick('final_cta')
               window.open('https://pay.kiwify.com.br/qynM2UU', '_blank')
             }}
             className="bg-white text-highlight hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
@@ -441,6 +460,7 @@ export default function LandingPage() {
           className="bg-[#25D366] hover:bg-[#20BA56] text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-bounce min-w-[48px] min-h-[48px] sm:min-w-[56px] sm:min-h-[56px]"
           onClick={() => {
             trackEvent('whatsapp_floating_clicked')
+            facebookPixelEvents.whatsappClick()
             window.open('https://wa.me/556191588938?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20o%20Atividades%20Sem%20tela', '_blank')
           }}
         >
