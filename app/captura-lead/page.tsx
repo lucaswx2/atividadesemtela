@@ -507,59 +507,6 @@ export default function CapturaLeadPage() {
       </section>
 
       {/* Social Proof */}
-      <section className="py-8 sm:py-12 md:py-16 testimonials-section">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
-              Mães que já transformaram seus filhos
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-600 px-2">
-              Veja os resultados de quem já aplicou o método
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {testimonials.map((testimonial, index) => (
-              <Card
-                key={index}
-                className="p-4 sm:p-6 hover:shadow-lg transition-shadow"
-              >
-                <CardContent className="p-0">
-                  <div className="flex items-center gap-1 mb-3 flex-wrap">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-3 w-3 sm:h-4 sm:w-4 fill-amber-400 text-amber-400"
-                      />
-                    ))}
-                    {testimonial.verified && (
-                      <Badge variant="secondary" className="ml-2 text-xs">
-                        Verificado
-                      </Badge>
-                    )}
-                  </div>
-
-                  <p className="text-gray-700 mb-4 italic text-sm sm:text-base leading-relaxed">
-                    "{testimonial.content}"
-                  </p>
-
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm sm:text-base">
-                      {testimonial.name}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      {testimonial.child}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      {testimonial.location}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Lead Capture Form Section */}
       <section id="lead-form" className="py-8 sm:py-12 md:py-16 bg-gray-50">
@@ -678,6 +625,59 @@ export default function CapturaLeadPage() {
         </div>
       </section>
 
+      <section className="py-8 sm:py-12 md:py-16 testimonials-section">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
+              Mães que já transformaram seus filhos
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 px-2">
+              Veja os resultados de quem já aplicou o método
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {testimonials.map((testimonial, index) => (
+              <Card
+                key={index}
+                className="p-4 sm:p-6 hover:shadow-lg transition-shadow"
+              >
+                <CardContent className="p-0">
+                  <div className="flex items-center gap-1 mb-3 flex-wrap">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="h-3 w-3 sm:h-4 sm:w-4 fill-amber-400 text-amber-400"
+                      />
+                    ))}
+                    {testimonial.verified && (
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        Verificado
+                      </Badge>
+                    )}
+                  </div>
+
+                  <p className="text-gray-700 mb-4 italic text-sm sm:text-base leading-relaxed">
+                    "{testimonial.content}"
+                  </p>
+
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm sm:text-base">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      {testimonial.child}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {testimonial.location}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* Final CTA */}
       <section className="py-8 sm:py-12 md:py-16 pb-16 bg-highlight text-white">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 text-center">
