@@ -425,43 +425,6 @@ export default function CapturaLeadPage() {
           </div>
         </div>
       </section>
-
-      {/* Problem Amplification */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gray-50 problems-section">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
-              Descubra o que as telas estão fazendo com seu filho
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-600 px-2">
-              Os impactos são <b className="text-red-500">mais sérios</b> do que
-              você imagina
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {problems.map((problem, index) => (
-              <Card
-                key={index}
-                className="group hover:shadow-lg transition-all duration-300 border-none bg-white/50 backdrop-blur-sm"
-              >
-                <CardContent className="p-4 text-center flex flex-col items-center gap-3">
-                  <div className="bg-highlight/90 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    <problem.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                    {problem.title}
-                  </h3>
-                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                    {problem.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Solution Presentation */}
       <section className="py-6 sm:py-12 md:py-16 benefits-section">
         <div className="max-w-6xl mx-auto px-3 sm:px-4">
@@ -504,6 +467,41 @@ export default function CapturaLeadPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+      {/* Problem Amplification */}
+      <section className="py-8 sm:py-12 md:py-16 bg-gray-50 problems-section">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
+              Descubra o que as telas estão fazendo com seu filho
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 px-2">
+              Os impactos são <b className="text-red-500">mais sérios</b> do que
+              você imagina
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {problems.map((problem, index) => (
+              <Card
+                key={index}
+                className="group hover:shadow-lg transition-all duration-300 border-none bg-white/50 backdrop-blur-sm"
+              >
+                <CardContent className="p-4 text-center flex flex-col items-center gap-3">
+                  <div className="bg-highlight/90 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <problem.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">
+                    {problem.title}
+                  </h3>
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                    {problem.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
