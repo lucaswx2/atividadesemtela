@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   X,
   Play,
@@ -31,6 +33,7 @@ import {
   trackTimeOnPage,
   setupConversionTracking,
 } from "@/lib/conversionTracking";
+import { useRouter } from "next/navigation";
 
 const testimonials = [
   {
@@ -134,9 +137,17 @@ declare global {
   }
 }
 
-export default function LandingPage() {
+export default function CapturaLeadPage() {
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const videoRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     // Inicializar tracking de scroll do Facebook Pixel
@@ -178,10 +189,155 @@ export default function LandingPage() {
     };
   }, []);
 
-  const scrollToPricing = () => {
-    trackEvent("cta_scroll_to_pricing_clicked");
-    facebookPixelEvents.ctaClick("scroll_to_pricing");
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  const scrollToForm = () => {
+    trackEvent("cta_scroll_to_form_clicked");
+    facebookPixelEvents.ctaClick("scroll_to_form");
+    document
+      .getElementById("lead-form")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
+
+    // Se não tem números, retorna vazio
+    if (numbers.length === 0) return "";
+
+    // Se tem 11 dígitos, verifica se o 4º dígito é 9 (9 do celular)
+    if (numbers.length === 11) {
+      // Se o 4º dígito (índice 3) é 9, remove ele
+      if (numbers.charAt(3) === "9") {
+        return numbers.substring(0, 3) + numbers.substring(4);
+      }
+      // Se não tem 9 no 4º dígito, remove o primeiro dígito
+      return numbers.substring(1);
+    }
+
+    // Se tem 10 dígitos, mantém como está
+    if (numbers.length === 10) {
+      return numbers;
+    }
+
+    // Para outros casos, retorna apenas os números
+    return numbers;
+  };
+
+  const applyPhoneMask = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+
+    if (numbers.length === 0) return "";
+    if (numbers.length <= 2) return `(${numbers}`;
+    if (numbers.length <= 6)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (numbers.length <= 10)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(
+        6
+      )}`;
+    if (numbers.length <= 11)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
+        7
+      )}`;
+
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
+      7,
+      11
+    )}`;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (name === "telefone") {
+      // Aplica máscara para exibição
+      const maskedValue = applyPhoneMask(value);
+      setFormData((prev) => ({ ...prev, [name]: maskedValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    // Limpar erro do campo quando usuário começa a digitar
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.nome.trim()) {
+      newErrors.nome = "Nome é obrigatório";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "E-mail é obrigatório";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "E-mail inválido";
+    }
+
+    if (!formData.telefone.trim()) {
+      newErrors.telefone = "Telefone é obrigatório";
+    } else {
+      // Validar se o telefone tem pelo menos 10 dígitos (sem contar a máscara)
+      const phoneNumbers = formData.telefone.replace(/\D/g, "");
+      if (phoneNumbers.length < 10) {
+        newErrors.telefone = "Telefone deve ter pelo menos 10 dígitos";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Rastrear evento de lead
+      trackEvent("lead_form_submitted");
+      facebookPixelEvents.lead();
+
+      // Formatar telefone para o formato correto (556192531306)
+      const formattedPhone = formatPhoneNumber(formData.telefone.trim());
+      const phoneWithCountryCode = `55${formattedPhone}`;
+
+      console.log("Telefone original:", formData.telefone.trim());
+      console.log("Telefone formatado:", formattedPhone);
+      console.log("Telefone com código do país:", phoneWithCountryCode);
+
+      const response = await fetch(
+        "https://grizzly-sunny-jaguar.ngrok-free.app/webhook/lead",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nome: formData.nome.trim(),
+            email: formData.email.trim(),
+            telefone: phoneWithCountryCode,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // Redirecionar para página de agradecimento
+        router.push("/obrigado");
+      } else {
+        throw new Error("Erro ao enviar dados");
+      }
+    } catch (error) {
+      console.error("Erro ao enviar lead:", error);
+      setErrors({ submit: "Erro ao enviar dados. Tente novamente." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -197,8 +353,6 @@ export default function LandingPage() {
           style={{ width: "100px", height: "auto" }}
         />
       </div>
-
-      {/* Urgency Banner */}
 
       {/* Hero Section */}
       <section className="py-6 sm:py-8 md:py-12 lg:py-20 px-3 sm:px-4">
@@ -262,19 +416,8 @@ export default function LandingPage() {
             {/* BOTÕES - sempre depois do vídeo no mobile, ao lado do texto no desktop */}
             <div className="w-full flex flex-col sm:flex-row gap-4 justify-center lg:justify-center lg:items-center lg:order-2">
               <Button
-                onClick={scrollToPricing}
+                onClick={scrollToForm}
                 className="bg-highlight hover:bg-highlight/80 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
-              >
-                QUERO TIRAR MEU FILHO DAS TELAS
-              </Button>
-              <Button
-                onClick={() => {
-                  trackEvent("saber_mais_clicked");
-                  facebookPixelEvents.ctaClick("saber_mais");
-                  window.location.href = "/captura-lead";
-                }}
-                variant="outline"
-                className="border-highlight text-highlight hover:bg-highlight hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
               >
                 QUERO SABER MAIS
               </Button>
@@ -365,67 +508,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-6 sm:py-12 md:py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-3 sm:px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
-              Transforme seu filho hoje mesmo
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-600 px-2">
-              Um pequeno investimento para um <br />
-              <b className="text-highlight">futuro brilhante</b>
-            </p>
-          </div>
-
-          <Card className="max-w-sm sm:max-w-md lg:max-w-lg mx-auto shadow-2xl border-2 border-highlight">
-            <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
-              <div className="mb-4 sm:mb-6">
-                <p className="text-gray-500 line-through text-lg sm:text-xl mb-1 sm:mb-2">
-                  R$97,00
-                </p>
-                <p className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-600 mb-1 sm:mb-2">
-                  R$24,99
-                </p>
-                <p className="text-gray-600 text-sm sm:text-base">no PIX </p>
-              </div>
-
-              <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                <div className="flex items-center justify-center gap-2 text-gray-700">
-                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">
-                    7 dias de garantia total
-                  </span>
-                </div>
-                <div className="flex items-center justify-center gap-2 text-gray-700">
-                  <Smartphone className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Entrega imediata</span>
-                </div>
-                <div className="flex items-center justify-center gap-2 text-gray-700">
-                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Acesso vitalício</span>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => {
-                  trackEvent("purchase_button_clicked");
-                  facebookPixelEvents.initiateCheckout();
-                  window.open("https://pay.kiwify.com.br/qynM2UU", "_blank");
-                }}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg  hover:animate-none transition-all duration-300 min-h-[48px] sm:min-h-[56px]"
-              >
-                COMPRAR AGORA
-              </Button>
-
-              <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">
-                Pagamento 100% seguro • Processado pela Woovi
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
       {/* Social Proof */}
       <section className="py-8 sm:py-12 md:py-16 testimonials-section">
         <div className="max-w-6xl mx-auto px-3 sm:px-4">
@@ -481,8 +563,125 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Lead Capture Form Section */}
+      <section id="lead-form" className="py-8 sm:py-12 md:py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
+              Quer saber mais sobre como tirar seu filho das telas?
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 px-2">
+              Deixe seus dados e nossa equipe especializada entrará em contato
+              em breve para te ajudar
+            </p>
+          </div>
+
+          <Card className="max-w-md mx-auto shadow-2xl border-2 border-highlight">
+            <CardContent className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label
+                    htmlFor="nome"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Nome completo *
+                  </Label>
+                  <Input
+                    id="nome"
+                    name="nome"
+                    type="text"
+                    value={formData.nome}
+                    onChange={handleInputChange}
+                    className={`mt-1 ${errors.nome ? "border-red-500" : ""}`}
+                    placeholder="Digite seu nome completo"
+                  />
+                  {errors.nome && (
+                    <p className="text-red-500 text-xs mt-1">{errors.nome}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    E-mail *
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`mt-1 ${errors.email ? "border-red-500" : ""}`}
+                    placeholder="Digite seu melhor e-mail"
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="telefone"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Telefone *
+                  </Label>
+                  <Input
+                    id="telefone"
+                    name="telefone"
+                    type="tel"
+                    value={formData.telefone}
+                    onChange={handleInputChange}
+                    className={`mt-1 ${
+                      errors.telefone ? "border-red-500" : ""
+                    }`}
+                    placeholder="(11) 99999-9999"
+                  />
+                  {errors.telefone && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.telefone}
+                    </p>
+                  )}
+                </div>
+
+                {errors.submit && (
+                  <p className="text-red-500 text-sm text-center">
+                    {errors.submit}
+                  </p>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-highlight hover:bg-highlight/80 text-white py-3 text-base font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 min-h-[48px]"
+                >
+                  {isSubmitting ? "Enviando..." : "QUERO SABER MAIS"}
+                </Button>
+              </form>
+
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center gap-2 text-gray-700">
+                  <Shield className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                  <span className="text-sm">Seus dados estão seguros</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-700">
+                  <Smartphone className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                  <span className="text-sm">Contato em até 24h</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-700">
+                  <Clock className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                  <span className="text-sm">Sem compromisso</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Final CTA */}
-      <section className="py-8 sm:py-12 md:py-16  pb-16 bg-highlight text-white">
+      <section className="py-8 sm:py-12 md:py-16 pb-16 bg-highlight text-white">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 px-2">
             Não Deixe Mais Um Dia Passar
@@ -492,16 +691,25 @@ export default function LandingPage() {
             desenvolvimento real
           </p>
 
-          <Button
-            onClick={() => {
-              trackEvent("final_cta_clicked");
-              facebookPixelEvents.ctaClick("final_cta");
-              window.open("https://pay.kiwify.com.br/qynM2UU", "_blank");
-            }}
-            className="bg-white text-highlight hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
-          >
-            GARANTIR MINHA CÓPIA AGORA
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              onClick={() => {
+                trackEvent("final_cta_clicked");
+                facebookPixelEvents.ctaClick("final_cta");
+                window.open("https://pay.kiwify.com.br/qynM2UU", "_blank");
+              }}
+              className="bg-white text-highlight hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
+            >
+              GARANTIR MINHA CÓPIA AGORA
+            </Button>
+            <Button
+              onClick={scrollToForm}
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-highlight px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto min-h-[48px] sm:min-h-[56px]"
+            >
+              QUERO SABER MAIS
+            </Button>
+          </div>
         </div>
       </section>
 
