@@ -150,6 +150,13 @@ export default function CapturaLeadPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Rastrear visualização da página no Facebook Pixel
+    facebookPixelEvents.pageView();
+    facebookPixelEvents.viewContent(
+      "Seu Filho Sem Tela - Landing Page",
+      "E-book"
+    );
+
     // Inicializar tracking de scroll do Facebook Pixel
     const cleanup = useScrollTracking();
 
